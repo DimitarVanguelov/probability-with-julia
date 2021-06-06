@@ -1,0 +1,7 @@
+[deps]
+Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
+Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
+Pluto = "c3e4b0f8-55cb-11ea-2926-15256bba5781"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
