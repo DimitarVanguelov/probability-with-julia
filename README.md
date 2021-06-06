@@ -1,0 +1,3 @@
+# Probability Theory in Julia
+
+My attempt to translate [Peter Norvig's Probability pytude](https://github.com/norvig/pytudes/blob/main/ipynb/Probability.ipynb) into Julia...
