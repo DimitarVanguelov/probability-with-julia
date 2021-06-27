@@ -103,10 +103,10 @@ odd = Set([1, 3, 5, 7, 9, 11, 13]);
 P(odd, D)
 
 # ╔═╡ 042b17b9-8a90-499e-afb6-e890db322e0b
-P(even ∪ prime, D)
+P(union(even, prime), D)
 
 # ╔═╡ a696d091-a0bf-4282-9d9a-72e13abb5908
-P(odd ∩ prime, D)
+P(intersect(odd, prime), D)
 
 # ╔═╡ ccd786ef-d3a8-4eef-bc54-905b54ee8922
 md"""
@@ -124,6 +124,9 @@ ranks = "AKQJT98765432";
 # ╔═╡ e40381c6-761e-4f8c-8b20-d9a2ed2516a2
 deck = [(r*s) for r in ranks, s in suits]
 
+# ╔═╡ a3381527-72b8-4640-a13f-db3358bf8172
+md"Note that each card in `deck` is a *tuple* consisting of a rank and suit. We deviate from the Python version here since working with tuples is faster in Julia than with strings."
+
 # ╔═╡ 8c6b90ba-ceb7-4ca9-a05d-c67eb588f5a9
 length(deck)
 
@@ -139,7 +142,7 @@ function combos(items, n)
 end;
 
 # ╔═╡ 1053da15-abf0-45bd-9781-7eb3bd69f77c
-Hands = combos(deck, 5);
+Hands = combos(deck, 5)
 
 # ╔═╡ 417a886c-8ce1-44c3-87bf-23c8dec406f2
 # number of possible hands
@@ -157,128 +160,11 @@ rand(deck, 7)
 md"Now we can answer questions like the probability of being dealt a flush (5 cards of the same suit):"
 
 
-# ╔═╡ be7f0d81-8003-4c45-96b4-021ed1527c27
-flush = Set(
-	hand for hand in Hands if any(count(isequal(suit), hand) == 5 for suit in suits)
-			);
+# ╔═╡ 56ac4f28-1568-4c69-8a6f-5a9001e92274
 
-# ╔═╡ 63335a6c-2a3f-4ea4-9e49-0be080bc4eaa
-P(flush, Hands)
 
 # ╔═╡ 23b6d8da-56bf-4cd4-9ba5-f515d2a09204
 md"""Or the probability of four of a kind:"""
-
-# ╔═╡ a82d511a-10ed-405c-9a23-f17cc0c2391b
-four_kind = Set(
-	hand for hand in Hands if any(count(isequal(rank), hand) == 4 for rank in ranks)
-			);
-
-# ╔═╡ d06c3149-12a8-499e-87f9-b221a921fe71
-P(four_kind, Hands)
-
-# ╔═╡ e0239202-5657-4dd8-abd8-dfb245c9bd79
-md"""
-## Urn Problems
-
-Around 1700, Jacob Bernoulli wrote about removing colored balls from an urn in his landmark treatise [Ars Conjectandi](https://en.wikipedia.org/wiki/Ars_Conjectandi), and ever since then, explanations of probability have relied on [urn problems](https://www.google.com/search?q=probability+ball+urn). (You'd think the urns would be empty by now.)
-"""
-
-# ╔═╡ be3074be-20c2-4360-867c-4f958eab0cf9
-html"""
-<p align="center">
-<img src="https://i.imgur.com/RdJssKy.jpg">
-</p>
-"""
-
-# ╔═╡ 3b182b64-c9cb-4181-b53a-5fd77f790ab4
-md"""
-For example, here is a three-part problem adapted from mathforum.org:
-
-> An urn contains 6 blue, 9 red, and 8 white balls. We select six balls at random. What is the probability of each of these outcomes: 
-> - All balls are red.
-> - 3 are blue, and 1 is red, and 2 are white, .
-> - Exactly 4 balls are white.
-We'll start by defining the contents of the urn. A set can't contain multiple objects that are equal to each other, so I'll call the blue balls 'B1' through 'B6', rather than trying to have 6 balls all called 'B':
-"""
-
-# ╔═╡ 4454686e-3c50-4df5-8a3b-1fefaa8f9ec3
-"""A set of n colored balls of the given color."""
-balls(color, n) = [color * string(i) for i in 1:n];
-
-# ╔═╡ 909594f2-4561-4c0b-ab34-9ffecb37c1f2
-urn = balls("B", 6) ∪ balls("R", 9) ∪ balls("W", 8);
-
-# ╔═╡ 5c399883-8b83-4e33-b095-f6c1e9cf66b7
-U6 = combos(urn, 6);
-
-# ╔═╡ 9fcb33b3-20ea-449b-b499-b405b6387438
-# random sample
-rand(U6, 5)
-
-# ╔═╡ 2defc7e6-e5b1-4623-bbfe-fa8034e2c884
-md"""Define select such that `select("R", 6)` is the event of picking 6 red balls from the urn:"""
-
-# ╔═╡ 89dc84b4-dbfb-49c2-aa99-d795ac8dea3e
-"""The subset of the sample space with exactly `n` balls of given `color`."""
-select(color, n, space=U6) = Set(s for s in space if count(color, s) == n);
-
-# ╔═╡ 98979cfc-37e7-4faf-b5e7-e32079041827
-P(select("R", 6), U6)
-
-# ╔═╡ 87fc6af2-bef8-4c5b-aa9b-4ec2e2c46e7e
-P(select("B", 3) ∩ select("R", 1) ∩ select("W", 2), U6)
-
-# ╔═╡ e4f75f67-9b95-4d44-b1c0-21766b44f98b
-P(select("W", 4), U6)
-
-# ╔═╡ 7b02289b-3c9a-4dc4-9d0f-0fbc669505f1
-md"""
-### Urn problems via arithmetic
-
-Let's verify these calculations using basic arithmetic, rather than exhaustive counting. First, how many ways can one choose 6 out of 9 red balls? It could be any of the 9 for the first ball, any of 8 remaining for the second, and so on down to any of the remaining 4 for the sixth and final ball. But we don't care about the order of the six balls, so divide that product by the number of permutations of 6 things, which is 6!, giving us 9 × 8 × 7 × 6 × 5 × 4 / 6! = 84. In general, the number of ways of choosing c out of n items is (n choose c) = n! / ((n - c)! × c!). We can translate that to code:
-"""
-
-# ╔═╡ 319741df-f342-4a2c-ae61-6aac666bebc5
-choose(n, c) = factorial(n) ÷ (factorial(n - c) * factorial(c));
-
-# ╔═╡ f6d3fcae-cd67-4020-a274-511f98d5b2e4
-choose(9, 6)
-
-# ╔═╡ 872d8851-3b4a-4918-a298-ff5131576296
-md"""
-Now we can verify the answers to the three problems. (Since P computes a ratio and choose computes a count, we multiply the left-hand-side by N, the length of the sample space, to make both sides be counts.)
-"""
-
-# ╔═╡ 650d376f-adf9-4183-81e8-d200a238b64f
-N = length(U6)
-
-# ╔═╡ dd3e62e8-2c16-47a8-b2c6-2dc4055a9a9b
-N * P(select("R", 6), U6) == choose(9, 6)
-
-# ╔═╡ 3d06951d-7352-4fc3-9ee8-089dadd613ba
-N * P(select("B", 3) ∩ select("W", 2) ∩ select("R", 1), U6) == choose(6, 3) * choose(8, 2) * choose(9, 1)
-
-# ╔═╡ 46723fe6-fb52-4393-bb52-cd132ea5f001
-N * P(select("W", 4), U6) == choose(8, 4) * choose(6 + 9, 2) # (6 + 9 non-white balls)
-
-# ╔═╡ cc3f3f5a-36fb-4a3c-9086-ec1998468f1e
-md"""
-We can solve all these problems just by counting; all you ever needed to know about probability problems you learned from Sesame Street:
-"""
-
-# ╔═╡ 1d079b25-46c4-47a1-916d-99be46cc383d
-html"""
-<p align="center">
-<img src="https://i.imgur.com/BEcnDNP.gif">
-</p>
-"""
-
-# ╔═╡ 1577a943-8c3a-4bf9-9b5b-47a872ee1565
-md"""
-## Non-Equiprobable Outcomes
-
-
-"""
 
 # ╔═╡ 7316770c-f7da-47b5-b3d0-b7873c3eafa4
 note(text) = Markdown.MD(Markdown.Admonition("note", "Note", [text]));
@@ -326,6 +212,7 @@ TableOfContents()
 # ╠═9179759a-5c1e-403d-a8b9-3a2235702bda
 # ╠═047c5adc-c89c-4949-bc44-43f4aecf0658
 # ╠═e40381c6-761e-4f8c-8b20-d9a2ed2516a2
+# ╟─a3381527-72b8-4640-a13f-db3358bf8172
 # ╟─a4b79e42-87bc-4bb9-b990-517fd220d6cc
 # ╠═8c6b90ba-ceb7-4ca9-a05d-c67eb588f5a9
 # ╟─9eeb67a8-a165-441d-93fc-f2668234bd2d
@@ -336,34 +223,9 @@ TableOfContents()
 # ╠═06ca0904-47fc-43d6-8d0b-dd22248a3ad2
 # ╠═8fbdcb18-857e-457a-a326-d8328ed8b9ae
 # ╟─16d0d2dc-ebeb-4d87-b578-447324c466dd
-# ╠═be7f0d81-8003-4c45-96b4-021ed1527c27
-# ╠═63335a6c-2a3f-4ea4-9e49-0be080bc4eaa
+# ╠═cd0574cd-84bf-4dbe-9236-e7756bc85fe2
+# ╠═56ac4f28-1568-4c69-8a6f-5a9001e92274
 # ╟─23b6d8da-56bf-4cd4-9ba5-f515d2a09204
-# ╠═a82d511a-10ed-405c-9a23-f17cc0c2391b
-# ╠═d06c3149-12a8-499e-87f9-b221a921fe71
-# ╟─e0239202-5657-4dd8-abd8-dfb245c9bd79
-# ╟─be3074be-20c2-4360-867c-4f958eab0cf9
-# ╟─3b182b64-c9cb-4181-b53a-5fd77f790ab4
-# ╠═4454686e-3c50-4df5-8a3b-1fefaa8f9ec3
-# ╠═909594f2-4561-4c0b-ab34-9ffecb37c1f2
-# ╠═5c399883-8b83-4e33-b095-f6c1e9cf66b7
-# ╠═9fcb33b3-20ea-449b-b499-b405b6387438
-# ╟─2defc7e6-e5b1-4623-bbfe-fa8034e2c884
-# ╠═89dc84b4-dbfb-49c2-aa99-d795ac8dea3e
-# ╠═98979cfc-37e7-4faf-b5e7-e32079041827
-# ╠═87fc6af2-bef8-4c5b-aa9b-4ec2e2c46e7e
-# ╠═e4f75f67-9b95-4d44-b1c0-21766b44f98b
-# ╟─7b02289b-3c9a-4dc4-9d0f-0fbc669505f1
-# ╠═319741df-f342-4a2c-ae61-6aac666bebc5
-# ╠═f6d3fcae-cd67-4020-a274-511f98d5b2e4
-# ╟─872d8851-3b4a-4918-a298-ff5131576296
-# ╠═650d376f-adf9-4183-81e8-d200a238b64f
-# ╠═dd3e62e8-2c16-47a8-b2c6-2dc4055a9a9b
-# ╠═3d06951d-7352-4fc3-9ee8-089dadd613ba
-# ╠═46723fe6-fb52-4393-bb52-cd132ea5f001
-# ╟─cc3f3f5a-36fb-4a3c-9086-ec1998468f1e
-# ╟─1d079b25-46c4-47a1-916d-99be46cc383d
-# ╠═1577a943-8c3a-4bf9-9b5b-47a872ee1565
 # ╟─d27d1867-e6ba-4fb1-8370-96403b786e00
 # ╟─7316770c-f7da-47b5-b3d0-b7873c3eafa4
 # ╟─06a5b841-edfb-400f-9bc8-d6a36433a1ba
