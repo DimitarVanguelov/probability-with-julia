@@ -7,6 +7,9 @@ using InteractiveUtils
 # ╔═╡ d75b95a1-0db0-4e04-9dd7-2a30dccbe633
 using Combinatorics
 
+# ╔═╡ cbba1623-087c-45ca-8e60-872d662a94c1
+using StatsBase
+
 # ╔═╡ d27d1867-e6ba-4fb1-8370-96403b786e00
 using PlutoUI
 
@@ -277,7 +280,42 @@ html"""
 md"""
 ## Non-Equiprobable Outcomes
 
+So far, we have accepted Laplace's assumption that *nothing leads us to expect that any one of these cases should occur more than any other*. In real life, we often get outcomes that are not equiprobable--for example, a loaded die favors one side over the others. We will introduce three more vocabulary items:
 
+* [Frequency](https://en.wikipedia.org/wiki/Frequency_(statistics)): a non-negative number describing how often an outcome occurs. Can be a count like 5, or a ratio like 1/6.
+
+* [Distribution](https://mathworld.wolfram.com/StatisticalDistribution.html): A mapping from outcome to frequency of that outcome. We will allow sample spaces to be distributions.
+
+* [Probability Distribution](https://en.wikipedia.org/wiki/Probability_distribution): A probability distribution is a distribution whose frequencies sum to 1.
+
+We will implement distributions with `Dist = countmap` using the `countmap` function from `StatsBase`.
+
+"""
+
+# ╔═╡ 1cb5828b-2662-49b8-9d7d-17e2af592917
+Dist = countmap;
+
+# ╔═╡ d6809ead-6fe3-4dc4-97fc-b05f73c458a1
+md"We can initialize a `Dist` in any of the following ways"
+
+# ╔═╡ 84dd4fda-1168-4211-8ee8-4b246096ca38
+# A set of equiprobably outcomes (e.g. die rolls)
+Dist(D)
+
+# ╔═╡ 8b8aad37-a05a-41c2-9db4-a338a3e38ac4
+# A collection of outcomes, with repetition indicating frequency:
+Dist("THHHTTHHT")
+
+# ╔═╡ 3b0a1cfc-688a-40e4-9f71-229db43a630f
+md"""
+Now we will modify the code to handle distributions:
+
+* Sample spaces and events can both be specified as either a `Set` or a `Dist`.
+* The sample space can be a non-probability distribution like Dist(H=50, T=50); the results will be the same as if the sample space had been a true probability distribution like Dist(H=1/2, T=1/2).
+* The function cases now sums the frequencies in a distribution (it previously counted the length).
+* The function favorable now returns a Dist of favorable outcomes and their frequencies (not a set).
+* I will redefine Fraction to use "/", not fractions.Fraction, because frequencies might be floats.
+* P is unchanged.
 """
 
 # ╔═╡ 7316770c-f7da-47b5-b3d0-b7873c3eafa4
@@ -295,11 +333,11 @@ note(md"""
 note(md"*As a way of learning about arrays in Julia, experiment a bit in the cell above -- see what happens if you change the comma to a `for` in the array comprehension, or see what happens when you execute `deck[:]`, or wrap it in `Set()`, etc.*")
 
 # ╔═╡ 06a5b841-edfb-400f-9bc8-d6a36433a1ba
-html"""<style>
+#= html"""<style>
 main {
     max-width: 1000px;
 }
-"""
+""" =#
 
 # ╔═╡ 426e59da-f826-4102-83e4-f8bd99fd8665
 TableOfContents()
@@ -363,8 +401,14 @@ TableOfContents()
 # ╠═46723fe6-fb52-4393-bb52-cd132ea5f001
 # ╟─cc3f3f5a-36fb-4a3c-9086-ec1998468f1e
 # ╟─1d079b25-46c4-47a1-916d-99be46cc383d
-# ╠═1577a943-8c3a-4bf9-9b5b-47a872ee1565
+# ╟─1577a943-8c3a-4bf9-9b5b-47a872ee1565
+# ╠═cbba1623-087c-45ca-8e60-872d662a94c1
+# ╠═1cb5828b-2662-49b8-9d7d-17e2af592917
+# ╟─d6809ead-6fe3-4dc4-97fc-b05f73c458a1
+# ╠═84dd4fda-1168-4211-8ee8-4b246096ca38
+# ╠═8b8aad37-a05a-41c2-9db4-a338a3e38ac4
+# ╠═3b0a1cfc-688a-40e4-9f71-229db43a630f
 # ╟─d27d1867-e6ba-4fb1-8370-96403b786e00
 # ╟─7316770c-f7da-47b5-b3d0-b7873c3eafa4
 # ╟─06a5b841-edfb-400f-9bc8-d6a36433a1ba
-# ╟─426e59da-f826-4102-83e4-f8bd99fd8665
+# ╠═426e59da-f826-4102-83e4-f8bd99fd8665
